@@ -86,7 +86,7 @@
       ]
     }
   ],
-  "post-processors": [
+  "post-processors": [[
     {
       "output": "builds/{{.Provider}}-debian9.box",
       "type": "vagrant"
@@ -97,5 +97,5 @@
       "box_tag": "openbuild/debian-9-docker",
       "version": "{{user `version`}}"
     }
-  ]
+  ]]
 }
