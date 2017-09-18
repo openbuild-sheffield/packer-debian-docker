@@ -1,0 +1,20 @@
+---
+
+  - name: Add user www-data
+    become: yes
+    become_method: sudo
+    user:
+      name: www-data
+      comment: "User for web"
+      group: www-data
+      shell: /bin/bash
+      createhome: yes
+
+  - name: Users - create home directory
+    become: yes
+    become_method: sudo
+    user:
+      createhome: yes
+      name: "{{ item.name }}"
+      home: "{{ item.home }}"
+    with_items: "{{ users }}"

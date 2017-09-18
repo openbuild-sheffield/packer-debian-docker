@@ -1,0 +1,179 @@
+---
+
+  - name: Vim install
+    become: yes
+    become_method: sudo
+    apt: name=vim state=latest
+
+  - name: Vim install
+    become: yes
+    become_method: sudo
+    apt: name=exuberant-ctags state=latest
+
+  - name: Vim install - zip
+    become: yes
+    become_method: sudo
+    apt: name=zip state=latest
+
+  - name: Vim install - unzip
+    become: yes
+    become_method: sudo
+    apt: name=unzip state=latest
+
+  - name: Vim Setup - register rc
+    stat: "path=/home/{{ item.name }}/.vimrc"
+    register: vimrc
+    with_items: "{{ users_vim }}"
+
+  - name: Vim create home .vim directory
+    become: yes
+    become_method: sudo
+    file:
+      path="{{ item.home }}/.vim"
+      state=directory
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim create home .vim/autoload directory
+    become: yes
+    become_method: sudo
+    file:
+      path="{{ item.home }}/.vim/autoload"
+      state=directory
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim create home .vim/bundle directory
+    become: yes
+    become_method: sudo
+    file:
+      path="{{ item.home }}/.vim/bundle"
+      state=directory
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim - Download pathogen.vim
+    get_url:
+      url: https://tpo.pe/pathogen.vim
+      dest: /tmp/pathogen.vim
+
+  - name: Vim - Download minibufexpl
+    get_url:
+      url: https://github.com/fholgado/minibufexpl.vim/archive/master.zip
+      dest: /tmp/minibufexpl.zip
+
+  - name: Vim - Download nerdtree
+    get_url:
+      url: https://github.com/scrooloose/nerdtree/archive/master.zip
+      dest: /tmp/nerdtree.zip
+
+  - name: Vim - Download supertab
+    get_url:
+      url: https://github.com/ervandew/supertab/archive/master.zip
+      dest: /tmp/supertab.zip
+
+  - name: Vim - Download taglist
+    get_url:
+      url: https://github.com/vim-scripts/taglist.vim/archive/master.zip
+      dest: /tmp/taglist.zip
+
+  - name: Vim - Download vim-colors-solarized
+    get_url:
+      url: https://github.com/altercation/vim-colors-solarized/archive/master.zip
+      dest: /tmp/vim-colors-solarized.zip
+
+  - name: Vim - Download vim-sensible
+    get_url:
+      url: https://github.com/tpope/vim-sensible/archive/master.zip
+      dest: /tmp/vim-sensible.zip
+
+  - name: Vim copy pathogen.vim
+    become: yes
+    become_method: sudo
+    copy:
+      src=/tmp/pathogen.vim
+      dest="{{ item.home }}/.vim/autoload/pathogen.vim"
+      remote_src=yes
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim install minibufexpl
+    become: yes
+    become_method: sudo
+    unarchive:
+      src=/tmp/minibufexpl.zip
+      dest="{{ item.home }}/.vim/bundle"
+      remote_src=yes
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim install nerdtree
+    become: yes
+    become_method: sudo
+    unarchive:
+      src=/tmp/nerdtree.zip
+      dest="{{ item.home }}/.vim/bundle"
+      remote_src=yes
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim install supertab
+    become: yes
+    become_method: sudo
+    unarchive:
+      src=/tmp/supertab.zip
+      dest="{{ item.home }}/.vim/bundle"
+      remote_src=yes
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim install taglist
+    become: yes
+    become_method: sudo
+    unarchive:
+      src=/tmp/taglist.zip
+      dest="{{ item.home }}/.vim/bundle"
+      remote_src=yes
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim install vim-colors-solarized
+    become: yes
+    become_method: sudo
+    unarchive:
+      src=/tmp/vim-colors-solarized.zip
+      dest="{{ item.home }}/.vim/bundle"
+      remote_src=yes
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim install vim-sensible
+    become: yes
+    become_method: sudo
+    unarchive:
+      src=/tmp/vim-sensible.zip
+      dest="{{ item.home }}/.vim/bundle"
+      remote_src=yes
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+
+  - name: Vim copy vimrc
+    become: yes
+    become_method: sudo
+    template:
+      src=vimrc
+      dest="{{ item.home }}/.vimrc"
+      owner="{{ item.name }}"
+      group="{{ item.name }}"
+    with_items: "{{ users }}"
+

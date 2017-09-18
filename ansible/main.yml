@@ -1,0 +1,53 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: yes
+
+  vars:
+    docker_channel: 'stable'
+    # The OS distribution and distribution release, thanks https://github.com/debops.
+    # Doing it this way doesn't depend on having lsb-release installed.
+    docker_distribution: '{{ ansible_local.core.distribution
+                         if (ansible_local|d() and ansible_local.core|d() and
+                             ansible_local.core.distribution|d())
+                         else ansible_distribution }}'
+    docker_distribution_release: '{{ ansible_local.core.distribution_release
+                                 if (ansible_local|d() and ansible_local.core|d() and
+                                     ansible_local.core.distribution_release|d())
+                                 else ansible_distribution_release }}'
+    docker_repository: 'deb [arch=amd64] https://download.docker.com/linux/{{ docker_distribution | lower }} {{ docker_distribution_release }} {{ docker_channel }}'
+    #See https://github.com/docker/compose/releases/
+    #Used to install docker-compose as a container
+    docker_compose_uri: 'https://github.com/docker/compose/releases/download/1.15.0/run.sh'
+    users_vim:
+      - name: "root"
+      - name: "vagrant"
+      - name: "www-data"
+    users:
+      - { name: "root", home: "/root" }
+      - { name: "vagrant", home: "/home/vagrant" }
+      - { name: "www-data", home: "/home/www-data" }
+
+  pre_tasks:
+    - name: install ntp
+      become: yes
+      become_method: sudo
+      apt: name=ntp state=latest
+    - name: set timezone to Europe/London
+      become: yes
+      become_method: sudo
+      timezone: name=Europe/London
+
+  roles:
+    - geerlingguy.nfs
+    - geerlingguy.packer-debian
+    - users
+    - vim
+    - docker
+#  tasks:
+#    - apt: "name={{ item }} state=installed"
+#      with_items:
+#        - git
+#        - wget
+#        - curl
+#        - vim

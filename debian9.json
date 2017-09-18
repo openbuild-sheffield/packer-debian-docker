@@ -1,0 +1,101 @@
+{
+  "variables": {
+    "vagrantcloud_token": "{{env `VAGRANTCLOUD_TOKEN`}}",
+    "version": "1.0.{{timestamp}}"
+  },
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/ansible.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/setup.sh"
+    },
+    {
+      "type": "ansible-local",
+      "playbook_file": "ansible/main.yml",
+      "galaxy_file": "requirements.yml",
+      "role_paths": [
+        "ansible/roles/docker",
+        "ansible/roles/users",
+        "ansible/roles/vim"
+      ]
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/cleanup.sh"
+    }
+  ],
+  "builders": [
+    {
+      "type": "virtualbox-iso",
+      "boot_command": [
+        "<esc><wait>",
+        "install <wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+        "debian-installer=en_US.UTF-8 <wait>",
+        "auto <wait>",
+        "locale=en_GB.UTF-8 <wait>",
+        "kbd-chooser/method=gb <wait>",
+        "keyboard-configuration/xkb-keymap=gb <wait>",
+        "netcfg/get_hostname={{ .Name }} <wait>",
+        "netcfg/get_domain=vagrantup.com <wait>",
+        "fb=false <wait>",
+        "debconf/frontend=noninteractive <wait>",
+        "console-setup/ask_detect=false <wait>",
+        "console-keymaps-at/keymap=gb <wait>",
+        "grub-installer/bootdev=/dev/sda <wait>",
+        "<enter><wait>"
+      ],
+      "boot_wait": "5s",
+      "disk_size": 81920,
+      "guest_os_type": "Debian_64",
+      "headless": true,
+      "http_directory": "http",
+      "iso_urls": [
+        "iso/debian-9.1.0-amd64-xfce-CD-1.iso",
+        "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-9.1.0-amd64-xfce-CD-1.iso"
+      ],
+      "iso_checksum_type": "sha256",
+      "iso_checksum": "9558262f6c15b024d8c3ca140d1c70c310f11384e227329d08dab38c915a4306",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "shutdown_command": "echo 'vagrant'|sudo -S shutdown -P now",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "virtualbox_version_file": ".vbox_version",
+      "vm_name": "packer-debian-9-amd64",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "1024"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "1"
+        ]
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "output": "builds/{{.Provider}}-debian9.box",
+      "type": "vagrant"
+    },
+    {
+      "type": "vagrant-cloud",
+      "access_token": "{{user `vagrantcloud_token`}}",
+      "box_tag": "openbuild/debian-9-docker",
+      "version": "{{user `version`}}"
+    }
+  ]
+}

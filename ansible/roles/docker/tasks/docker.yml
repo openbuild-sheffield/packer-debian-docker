@@ -1,0 +1,80 @@
+---
+
+  - name: Docker install apt-transport-https
+    become: yes
+    become_method: sudo
+    apt: name=apt-transport-https state=latest
+
+  - name: Docker install ca-certificates
+    become: yes
+    become_method: sudo
+    apt: name=ca-certificates state=latest
+
+  - name: Docker install curl
+    become: yes
+    become_method: sudo
+    apt: name=curl state=latest
+
+  - name: Docker install gnupg2
+    become: yes
+    become_method: sudo
+    apt: name=gnupg2 state=latest
+
+  - name: Docker install software-properties-common
+    become: yes
+    become_method: sudo
+    apt: name=software-properties-common state=latest
+
+  - name: Docker add apt key
+    become: yes
+    become_method: sudo
+    apt_key:
+      url: "https://download.docker.com/linux/debian/gpg"
+      state: present
+
+  - name: Docker add apt repo
+    debug:
+      msg: "Docker repo: {{docker_repository}}"
+
+  - name: Docker add apt repo
+    become: yes
+    become_method: sudo
+    apt_repository:
+      repo: "{{docker_repository}}"
+      state: present
+      update_cache: yes
+
+  - name: update apt cache
+    become: yes
+    become_method: sudo
+    apt: update_cache=yes
+
+  - name: Docker install docker
+    become: yes
+    become_method: sudo
+    apt: name=docker-ce state=latest
+
+  - name: Docker - Install docker-compose as a container
+    become: yes
+    become_method: sudo
+    get_url:
+      url={{ docker_compose_uri }}
+      dest=/usr/local/bin/docker-compose
+      mode=0777
+
+  - name: Docker - add docker group
+    become: yes
+    become_method: sudo
+    group:
+      name=docker
+      state=present
+
+  - name: Docker - add users to docker group
+    become: yes
+    become_method: sudo
+    user:
+      name='{{ item.name }}'
+      groups=docker
+      append=yes
+    with_items: "{{ users }}"
+
