@@ -23,3 +23,51 @@ Look at the following lines in debian9.json
 ```
 
 Have a look at https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/ and update the url and checksums.
+
+## Create your own box
+
+* Signup for [Vagrant Cloud](https://app.vagrantup.com) and sign in
+* Click into the 'Security' tab
+* Create an Authentication Token
+* Create a local env in your profile, e.g. `export VAGRANTCLOUD_TOKEN=TOKEN_FROM_ABOVE`
+* Click 'Dashbord' then 'New Vagrant Box'
+* Clone this repo
+* Edit debian9.json and replace `"box_tag": "openbuild/debian-9-docker"` with your box from the step above
+* Build the box with `packer build debian9.json`
+
+### Amending the software
+
+In a new directory on your machine:
+
+Create file `Vagrantfile`
+
+```
+Vagrant.configure(2) do |config|
+  config.vm.box = "openbuild/debian-9-docker"
+  config.vm.provider "virtualbox" do |v|
+  end
+  config.vm.network :public_network, :public_network => "wlan0"
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "ansible/playbook.yml"
+  end
+end
+```
+
+Create file `ansible/playbook.yml`
+
+```
+# Look at the roles in this repo for examples (copy/paste/amend)
+---
+- hosts: all
+  become_user: root
+  roles:
+    - users
+    - vim
+    - docker
+```
+
+Run `vagrant up`
+
+Fix any issues and add more roles etc, then `vagrant provison` until it fully works and you are happy with the box state.
+
+Once you have a local box up and running copy the roles into this repo and add them to `role_paths` in `debian9.json` you should then be able to run `packer build debian9.json` to publish your box.
