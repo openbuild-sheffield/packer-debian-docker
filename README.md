@@ -2,6 +2,17 @@
 
 Scripts to build a virtual box with Docker on Debian9 and publish to vagrant cloud.
 
+## Requirements
+
+The following software must be installed on your local machine:
+
+  - [Packer](http://www.packer.io/)
+  - [Vagrant](http://vagrantup.com/)
+  - [VirtualBox](https://www.virtualbox.org/)
+  - [Ansible](http://docs.ansible.com/intro_installation.html)
+
+## Why
+
 Can be used as a template to provision your own boxes so you don't have to install
 lots of software when you do an initial vagrant up.
 
