@@ -2,6 +2,8 @@
 
 Scripts to build a virtual box with Docker on Debian9 and publish to vagrant cloud.
 
+If you just want a local Debian 9 box with docker installed checkout [openbuild/debian-9-docker](https://app.vagrantup.com/openbuild/boxes/debian-9-docker)
+
 ## Requirements
 
 The following software must be installed on your local machine:
